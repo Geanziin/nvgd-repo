@@ -50,8 +50,8 @@ COMMON_DEPEND="
 	vulkan? (
 		>=media-libs/vulkan-loader-1.3.250[${MULTILIB_USEDEP}]
 	)
-	sys-devel/llvm:=[${MULTILIB_USEDEP}]
-	sys-devel/clang:=[${MULTILIB_USEDEP}]
+	llvm-core/llvm:=[${MULTILIB_USEDEP}]
+	llvm-core/clang:=[${MULTILIB_USEDEP}]
 "
 
 RDEPEND="${COMMON_DEPEND}"
@@ -82,7 +82,7 @@ BDEPEND="
 		dev-util/spirv-tools
 		dev-lang/rust
 		dev-util/cbindgen
-		dev-util/rust-bindgen
+		dev-util/bindgen
 	)
 "
 
