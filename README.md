@@ -93,6 +93,9 @@ emerge --sync nvgd
 echo "media-libs/mesa ~amd64" >> /etc/portage/package.accept_keywords/nvgd
 echo "x11-drivers/nvgd-dkms ~amd64" >> /etc/portage/package.accept_keywords/nvgd
 
+# Suporte a 32-bit (lib32 / multilib para Steam, Wine e Proton):
+echo "media-libs/mesa abi_x86_32" >> /etc/portage/package.use/mesa
+
 # Compilar e instalar:
 emerge --ask media-libs/mesa::nvgd
 emerge --ask x11-drivers/nvgd-dkms::nvgd

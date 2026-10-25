@@ -5,7 +5,9 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{10..13} )
 
-inherit meson python-any-r1 flag-o-matic git-r3 toolchain-funcs multilib-minimal
+MULTILIB_COMPAT=( abi_x86_{32,64} )
+
+inherit meson-multilib python-any-r1 flag-o-matic git-r3 toolchain-funcs
 
 DESCRIPTION="Mesa fork nvgd (live git): native OpenGL, NVK, direct GA107 NVDEC H.264/AV1/HEVC/VP9 + NVENC video"
 HOMEPAGE="https://github.com/Geanziin/nvgd"
@@ -124,4 +126,12 @@ multilib_src_configure() {
 	)
 
 	meson_src_configure
+}
+
+multilib_src_compile() {
+	meson_src_compile
+}
+
+multilib_src_install() {
+	meson_src_install
 }
