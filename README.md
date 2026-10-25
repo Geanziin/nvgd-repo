@@ -38,39 +38,65 @@ não uma atualização parcial com `pacman -Sy` seguida de instalação isolada.
 | `gpu-screen-recorder-ui-git` | Interface gráfica |
 | `gpu-screen-recorder-notification-git` | Notificações de gravação e replay |
 
-Mesa 32/64-bit: `1:27.0.0_devel.r231968.gde8d36778cff-1`.
+Mesa 32/64-bit: `1:27.0.0_devel.r231969.g3e604079149-1`.
 DKMS: `1.0.0-20`. O build 32-bit otimiza C/C++ e Rust em nível 3,
 incluindo NVK, NIR e NAK. Isso corrige overhead de CPU do build anterior;
 não representa garantia de FPS para um jogo específico.
-H.264 VA-API agora decodifica **diretamente no NVDEC**, sem ponte para Vulkan
-Video, sem carregar NVK e sem consultar suas extensões. Vulkan Video continua
-independente para aplicações Vulkan. A configuração Gallium/NAK foi compilada
-e testada também com `-Dvulkan-drivers=[]`.
-**Novo: AV1, HEVC e VP9 decode nativos** — a suíte agora compara **620 frames
-byte a byte** contra as referências CPU, além de 72 frames de encode:
-- H.264: 200 frames (Baseline/Main/High, B-frames, 16 referências, matrizes
-  assimétricas, 1080p e 4K).
-- AV1 Profile0: 168 frames (all-intra, inter, frames ocultos/altref,
-  `show_existing_frame`, tiles e Main10).
-- HEVC Main/Main10: 120 frames (B-frames, P010, tiles e 3840x2160). O driver
-  conta o `sw_hdr_skip_length` do slice header e re-empacota as scaling lists
-  no layout do engine.
-- VP9 Profile0/Profile2: 132 frames (inter com adaptação de probabilidade
-  para trás, tiles e 10-bit). O driver mantém a máquina de estados de headers
-  da spec e adapta as probabilidades a partir dos contadores do engine.
-Encode H.264: 72 frames válidos, consumindo planos Gallium diretamente
-mesmo quando luma/chroma ficam em GEMs diferentes (zero-copy). Film grain do
-AV1, RExt do HEVC e `show_existing_frame` do VP9 são rejeitados
-explicitamente (sem fallback silencioso).
-O backend NVENC e o upload otimizado de NV12 foram preservados. Corrigido
-também o descritor usado na destruição de objetos de canal no winsys.
-São testes funcionais, não uma medição de desempenho/qualidade de codec.
-[`NOUVEAU_NVDEC_AV1=0` desativa o AV1, `NOUVEAU_NVDEC_HEVC=0` o HEVC,
-`NOUVEAU_NVDEC_VP9=0` o VP9]
-[arquitetura, limites e evidências](https://github.com/Geanziin/nvgd/blob/main/docs/native-video.md).
+
+**Novo: HEVC encode nativo no NVENC e AV1 Film Grain no NVDEC**:
+- **NVENC HEVC**: encode nativo por hardware em 8-bit (Main) e 10-bit (Main 10 / P010) no chip GA107 (classe C7B7), com alocação e chaveamento ping-pong de buffers de predição ME temporais (`SHARED_MEPRED_0` e `SHARED_MEPRED_1`) nos P-frames, eliminando timeouts de firmware; emissão de VPS/SPS/PPS nos frames IDR; e conformance window cropping para resolução visível exata.
+- **NVDEC AV1 Film Grain**: implementação de síntese de grão de filme (seção 7.18) no firmware NVDEC, com templates e tabelas de scaling gerados dinamicamente sem estouro de TLS em dlopen, e display surfaces vinculadas com `SET_DISPLAY_BUF_SIZE`. Validado byte a byte contra a `libdav1d` de referência em 8-bit e 10-bit com SHA-256 idêntico.
+- **NVDEC Decode**: decode nativo por Gallium/DRM em H.264, AV1, HEVC e VP9, cobrindo todos os formatos suportados pelo GA107 sem envolver ponte Vulkan Video nem bibliotecas proprietárias.
 
 ```bash
 sudo pacman -Syu nvgd/mesa-git nvgd/lib32-mesa-git nvgd/nvgd-dkms
+```
+
+---
+
+## 🟣 Suporte ao Gentoo Linux (Ebuild Overlay)
+
+O repositório `nvgd-repo` também funciona diretamente como overlay Portage do Gentoo.
+
+### 1. Configurar o overlay em `/etc/portage/repos.conf/nvgd.conf`
+
+```ini
+[nvgd]
+location = /var/db/repos/nvgd
+sync-type = git
+sync-uri = https://github.com/Geanziin/nvgd-repo.git
+auto-sync = yes
+```
+
+### 2. Sincronizar o overlay
+
+```bash
+emaint sync -r nvgd
+# ou
+emerge --sync nvgd
+```
+
+### 3. Pacotes disponíveis no Gentoo
+
+| Pacote | Categoria | Descrição |
+| --- | --- | --- |
+| `mesa` / `mesa-nvgd` | `media-libs` | Mesa fork nvgd com NVDEC/NVENC nativos, NVK e NAK |
+| `nvgd-dkms` | `x11-drivers` | Módulo de kernel Nouveau com GSP-RM 615 e P-State P0 |
+| `gpu-screen-recorder` | `media-video` | Gravador de tela VA-API NVENC |
+| `gpu-screen-recorder-ui` | `media-video` | Interface GTK3 para gravação |
+| `gpu-screen-recorder-notification` | `media-video` | Notificações e OSD de replay |
+
+### 4. Instalação no Gentoo
+
+```bash
+# Se necessário, aceite as keywords nos arquivos de configuração do portage:
+echo "media-libs/mesa ~amd64" >> /etc/portage/package.accept_keywords/nvgd
+echo "x11-drivers/nvgd-dkms ~amd64" >> /etc/portage/package.accept_keywords/nvgd
+
+# Compilar e instalar:
+emerge --ask media-libs/mesa::nvgd
+emerge --ask x11-drivers/nvgd-dkms::nvgd
+emerge --ask media-video/gpu-screen-recorder::nvgd
 ```
 
 Reinicie após atualizar o módulo de kernel; para atualizar apenas Mesa,

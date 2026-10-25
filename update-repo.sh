@@ -45,7 +45,7 @@ subprocess.run(['repo-add', str(root / 'nvgd.db.tar.gz'), *selected], check=True
 PY
 
 if [[ "${1:-}" == --publish ]]; then
-    git -C "$REPO_DIR" add -- .gitignore x86_64 README.md install.sh update-repo.sh packaging tests
+    git -C "$REPO_DIR" add -- .gitignore x86_64 README.md install.sh update-repo.sh packaging tests metadata profiles media-libs media-video x11-drivers
     if ! git -C "$REPO_DIR" diff --cached --quiet; then
         git -C "$REPO_DIR" commit -m "Update nvgd repository packages $(date +'%Y-%m-%d')"
     fi

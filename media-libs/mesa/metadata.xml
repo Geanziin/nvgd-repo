@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+    <maintainer type="person">
+        <email>gean.alvesaraujo@gmail.com</email>
+        <name>Gean Alves</name>
+    </maintainer>
+    <upstream>
+        <remote-id type="github">Geanziin/nvgd</remote-id>
+    </upstream>
+    <use>
+        <flag name="nvenc">Enable hardware video encoding on NVIDIA Turing/Ampere/Ada GPUs via NVENC (C7B7)</flag>
+        <flag name="nvdec">Enable native hardware video decoding on NVIDIA GPUs via NVDEC (C7B0)</flag>
+        <flag name="gallium-va">Build Gallium VA-API state tracker</flag>
+        <flag name="vulkan">Enable Vulkan drivers (including NVK for Nouveau)</flag>
+        <flag name="proprietary-codecs">Enable all video codecs including H.264, HEVC, and AV1</flag>
+    </use>
+</pkgmetadata>

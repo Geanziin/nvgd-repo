@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+    <maintainer type="person">
+        <email>gean.alvesaraujo@gmail.com</email>
+        <name>Gean Alves</name>
+    </maintainer>
+    <upstream>
+        <remote-id type="github">Geanziin/gpu-screen-recorder</remote-id>
+    </upstream>
+</pkgmetadata>
