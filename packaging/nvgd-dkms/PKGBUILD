@@ -4,7 +4,7 @@
 # NVIDIA-DERIVED: private local use only, not for redistribution/upstream.
 pkgname=nvgd-dkms
 pkgver=1.0.0
-pkgrel=20
+pkgrel=21
 pkgdesc="nvgd: Next-Gen NVIDIA Driver with GSP P0 Boost for Turing+ GPUs (GTX 16xx, RTX 20/30/40) (DKMS)"
 arch=('x86_64')
 url="https://github.com/Geanziin/nvgd-dkms"
@@ -38,6 +38,11 @@ package() {
 
   install -Dm644 "$loader" \
       "$pkgdir/usr/lib/firmware/nvidia/ga102/gsp/sec2-bl-615.78.08.bin"
+
+  if [ -d "/usr/lib/firmware/gpu-unlock/610.43.03" ]; then
+    install -d "$pkgdir/usr/lib/firmware/gpu-unlock/610.43.03"
+    cp -a /usr/lib/firmware/gpu-unlock/610.43.03/* "$pkgdir/usr/lib/firmware/gpu-unlock/610.43.03/"
+  fi
   install -Dm755 "$startdir/nvgd-status" "$pkgdir/usr/bin/nvgd-status"
   install -Dm644 "$startdir/mkinitcpio-nvgd.conf" \
       "$pkgdir/etc/mkinitcpio.conf.d/90-nvgd.conf"
