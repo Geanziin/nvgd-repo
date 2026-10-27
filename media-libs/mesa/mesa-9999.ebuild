@@ -12,6 +12,7 @@ inherit meson-multilib python-any-r1 flag-o-matic git-r3 toolchain-funcs
 DESCRIPTION="Mesa fork nvgd (live git): native OpenGL, NVK, direct GA107 NVDEC H.264/AV1/HEVC/VP9 + NVENC video"
 HOMEPAGE="https://github.com/Geanziin/nvgd"
 EGIT_REPO_URI="https://github.com/Geanziin/nvgd.git"
+EGIT_BRANCH="main"
 
 LICENSE="MIT LGPL-2.1+ SGI-B-2.0"
 SLOT="0"
