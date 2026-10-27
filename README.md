@@ -39,9 +39,19 @@ não uma atualização parcial com `pacman -Sy` seguida de instalação isolada.
 | `gpu-screen-recorder-notification-git` | Notificações de gravação e replay |
 
 Mesa 32/64-bit: `1:27.0.0_devel.r231969.g3e604079149-1`.
-DKMS: `1.0.0-20`. O build 32-bit otimiza C/C++ e Rust em nível 3,
+DKMS: `1.0.0-21`. O build 32-bit otimiza C/C++ e Rust em nível 3,
 incluindo NVK, NIR e NAK. Isso corrige overhead de CPU do build anterior;
 não representa garantia de FPS para um jogo específico.
+
+**Resultados de Performance e Desbloqueio de Hardware (RTX 3050 6GB GA107)**:
+- **Tensor Core Speed-Select (2× Throughput de FP32 Accumulate)**:
+  - `FEAT_OVR_PLM`: `0xffffff8f` ➔ `0xffffffff` (PLM destravado no boot)
+  - `FEAT_READOUT_1`: `0x00400080` ➔ `0x00000000` (todas as 9 unidades em taxa total sem stalls)
+  - `FEAT_OVR_SM_SPEED_SELECT` (SS0): `0x50404070` ➔ `0x88888888`
+  - `FEAT_OVR_SM_SPEED_SELECT_1` (SS1): `0x00000006` ➔ `0x00000008`
+- **Vulkan Nativo (NVK/NAK)**: `vkmark Score: 18004` (picos de até 22.934 FPS em geometria e 20.555 FPS em filtros de convolução 2D).
+- **OpenGL 4.6 Nativo (nvc0/NAK)**: `glmark2 Score: 9067` (13.577 FPS com VBO de alta performance).
+- **Emulação Android (Redroid Container)**: 240 FPS fluidos direto na renderização de tela e jogos via host DRM.
 
 **Novo: HEVC encode nativo no NVENC e AV1 Film Grain no NVDEC**:
 - **NVENC HEVC**: encode nativo por hardware em 8-bit (Main) e 10-bit (Main 10 / P010) no chip GA107 (classe C7B7), com alocação e chaveamento ping-pong de buffers de predição ME temporais (`SHARED_MEPRED_0` e `SHARED_MEPRED_1`) nos P-frames, eliminando timeouts de firmware; emissão de VPS/SPS/PPS nos frames IDR; e conformance window cropping para resolução visível exata.
