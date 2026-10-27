@@ -9,7 +9,7 @@ DESCRIPTION="nvgd: Next-Gen NVIDIA Driver with GSP P0 Boost for Turing+ GPUs (GT
 HOMEPAGE="https://github.com/Geanziin/nvgd-dkms"
 EGIT_REPO_URI="https://github.com/Geanziin/nvgd-dkms.git"
 EGIT_BRANCH="main"
-EGIT_COMMIT="be636019b8414436573cbb744f47970d440ea299"
+EGIT_COMMIT="bedd688fdc3848b3017a4c7e6c927f8a7fe42cb1"
 
 LICENSE="GPL-2 MIT"
 SLOT="0"
