@@ -1,16 +1,106 @@
 #!/bin/sh
+# nvgd-status — estado do driver nvgd e do Tensor Core Speed-Select Unlock.
+# Somente leitura; funciona sem root. O driver é a fonte autoritativa do
+# estado do desbloqueio (sysfs tensor_unlock_state + journal); a tabela de
+# IDs abaixo é só rótulo de exibição (família/modelo) e nunca decide se o
+# ID é suportado — isso é o driver que diz.
+#
+# Saída do desbloqueio, por fonte:
+#   sysfs  /sys/bus/pci/devices/<bdf>/tensor_unlock{,_state} (driver novo)
+#   journal  journalctl -k (persistente; o dmesg é só fallback)
+
 echo "kernel:            $(uname -r)"
 echo "dkms:              $(dkms status nvgd 2>/dev/null | head -2 | tr '\n' ' ')"
 echo "modulo em disco:   $(modinfo -n nvgd 2>/dev/null)"
 echo "srcversion disco:  $(modinfo -F srcversion nvgd 2>/dev/null)"
+
 if [ -d /sys/module/nvgd ]; then
+    driver=nvgd
     echo "srcversion vivo:   $(cat /sys/module/nvgd/srcversion)"
     echo "gsp_fw_ver:        $(cat /sys/module/nvgd/parameters/gsp_fw_ver 2>/dev/null)"
     echo "tensor_unlock:     $(cat /sys/module/nvgd/parameters/tensor_unlock 2>/dev/null)"
+    echo "tensor_unlock_experimental: $(cat /sys/module/nvgd/parameters/tensor_unlock_experimental 2>/dev/null)"
 elif [ -d /sys/module/nouveau ]; then
+    driver=nouveau
     echo "modulo ativo:      nouveau (srcversion: $(cat /sys/module/nouveau/srcversion))"
 else
+    driver=""
     echo "driver:            nao carregado"
 fi
-echo "clocks e energia:  $(cat /sys/class/hwmon/hwmon0/freq1_input 2>/dev/null | awk '{printf "GPU: %d MHz ", $1/1000000}') $(cat /sys/class/hwmon/hwmon0/power1_average 2>/dev/null | awk '{printf "Power: %.1f W\n", $1/1000000}')"
-dmesg 2>/dev/null | grep -E "(nvgd|nouveau).*gsp: RM version|NVGD:|nvgd.*tensor" | tail -4
+
+# --- GPU: primeiro dispositivo NVIDIA VGA/3D no sysfs ---
+gpu_bdf=""
+for d in /sys/bus/pci/devices/*; do
+    [ "$(cat "$d/vendor" 2>/dev/null)" = "0x10de" ] || continue
+    case "$(cat "$d/class" 2>/dev/null)" in
+        0x030000|0x030200) gpu_bdf=$(basename "$d"); break ;;
+    esac
+done
+
+if [ -n "$gpu_bdf" ]; then
+    devid=$(cat "/sys/bus/pci/devices/$gpu_bdf/device" 2>/dev/null)
+    # Nome comercial em pci.ids (quando disponível).
+    devname=""
+    if [ -f /usr/share/hwdata/pci.ids ]; then
+        devname=$(awk -v id="${devid#0x}" '
+            /^[0-9a-f][0-9a-f][0-9a-f][0-9a-f] / { v = ($1 == "10de"); next }
+            v && $1 == id { sub(/^[ \t]*[^ \t]+[ \t]+/, ""); print; exit }' \
+            /usr/share/hwdata/pci.ids)
+    fi
+    # Família (GA10x/AD10x) — gerado a partir de tensor_unlock.c (GA) e
+    # arch_610.h (Ada). Rótulo apenas; o driver decide suporte.
+    family=""
+    case "$devid" in
+        0x2200|0x2203|0x2204|0x2205|0x2206|0x2207|0x2208|0x220a|0x220d|0x2216|0x222b|0x222f) family="GA102" ;;
+        0x2414) family="GA103" ;;
+        0x2480|0x2482|0x2483|0x2484|0x2486|0x2487|0x2488|0x2489|0x248a|0x248c|0x248d|0x248e|0x249c|0x249d|0x249f|0x24a0|0x24a4|0x24ac|0x24ad|0x24af|0x24bf|0x24c0|0x24c7|0x24c8|0x24c9|0x24dc|0x24dd|0x24df|0x24e0) family="GA104" ;;
+        0x2501|0x2503|0x2504|0x2505|0x2507|0x2508|0x2509|0x252f|0x2544) family="GA106" ;;
+        0x2584) family="GA107" ;;
+        0x2684|0x2685|0x2689) family="AD102" ;;
+        0x2702|0x2704|0x2705|0x2709|0x2717|0x2757) family="AD103" ;;
+        0x2782|0x2783|0x2786|0x2788) family="AD104" ;;
+        0x2803|0x2805|0x2808|0x2820|0x2860) family="AD106" ;;
+        0x2882|0x28a0|0x28a1|0x28e0|0x28e1) family="AD107" ;;
+    esac
+    # Ada exceto a RTX 4090 (0x2684) é experimental por padrão.
+    case "$family" in
+        AD1*) [ "$devid" = "0x2684" ] && gate="suportado" || gate="experimental" ;;
+        GA1*) gate="suportado" ;;
+        *)    gate="desconhecido" ;;
+    esac
+    echo "gpu:               $gpu_bdf 10de:${devid#0x} ${family:-?} ${devname} [$gate]"
+else
+    echo "gpu:               nao encontrada (nenhum dispositivo NVIDIA VGA/3D)"
+fi
+
+# --- Estado do desbloqueio (sysfs do driver, quando existir) ---
+state_file="/sys/bus/pci/devices/$gpu_bdf/tensor_unlock_state"
+if [ -n "$gpu_bdf" ] && [ -r "$state_file" ]; then
+    echo "unlock sysfs:      $(cat "$state_file" 2>/dev/null)"
+    echo "unlock:            $(cat "/sys/bus/pci/devices/$gpu_bdf/tensor_unlock" 2>/dev/null | sed 's/^1$/desbloqueado/;s/^0$/nao desbloqueado/')"
+else
+    echo "unlock sysfs:      indisponivel (driver sem exposicao ou GPU nao suportada)"
+fi
+
+# --- Clocks e energia: hwmon do GPU (por nome, nunca hwmon0 fixo) ---
+hwmon_dir=""
+for h in "/sys/bus/pci/devices/$gpu_bdf/hwmon"/hwmon* /sys/class/hwmon/hwmon*; do
+    [ -f "$h/name" ] || continue
+    [ "$(cat "$h/name" 2>/dev/null)" = "nouveau" ] || continue
+    hwmon_dir="$h"
+    break
+done
+if [ -n "$hwmon_dir" ]; then
+    echo "clocks e energia:  $(cat "$hwmon_dir/freq1_input" 2>/dev/null | awk '{printf "GPU: %d MHz ", $1/1000000}')$(cat "$hwmon_dir/power1_average" 2>/dev/null | awk '{printf "Power: %.1f W\n", $1/1000000}')"
+else
+    echo "clocks e energia:  hwmon nouveau nao encontrado"
+fi
+
+# --- Log do desbloqueio: journal persistente; dmesg só como fallback ---
+log_lines=$(journalctl -k --no-pager -q 2>/dev/null | grep -E "nvgd.*tensor|gsp: RM version" | tail -4)
+if [ -n "$log_lines" ]; then
+    echo "$log_lines"
+else
+    echo "(journal indisponivel ou vazio; usando dmesg — anel volatil)"
+    dmesg 2>/dev/null | grep -E "(nvgd|nouveau).*gsp: RM version|nvgd.*tensor" | tail -4
+fi

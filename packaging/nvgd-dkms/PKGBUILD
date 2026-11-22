@@ -4,12 +4,16 @@
 # NVIDIA-DERIVED: private local use only, not for redistribution/upstream.
 pkgname=nvgd-dkms
 pkgver=1.0.0
-pkgrel=21
+pkgrel=22
 pkgdesc="nvgd: Next-Gen NVIDIA Driver with GSP P0 Boost for Turing+ GPUs (GTX 16xx, RTX 20/30/40) (DKMS)"
 arch=('x86_64')
 url="https://github.com/Geanziin/nvgd-dkms"
 license=('GPL-2.0-only' 'MIT')
-depends=('dkms' 'linux-cachyos-headers' 'clang' 'lld' 'llvm' 'pahole'
+# CachyOS-only por padrão: o DKMS precisa dos headers do kernel em execução.
+# Para Arch vanilla, construa com KERNEL_HEADERS=linux-headers (o resto do
+# pacote não depende do CachyOS).
+_headers=${KERNEL_HEADERS:-linux-cachyos-headers}
+depends=('dkms' "$_headers" 'clang' 'lld' 'llvm' 'pahole'
          'linux-firmware-nvidia')
 provides=('nouveau-lab-dkms')
 conflicts=('nouveau-lab-dkms')
@@ -17,7 +21,9 @@ install=nvgd-dkms.install
 options=('!strip' '!debug')
 backup=('etc/mkinitcpio.conf.d/90-nvgd.conf')
 
-_lab=/home/gean/Documents/nouveau-lab
+# Árvore do lab (fonte do driver e do firmware versionado). O padrão é a
+# máquina do Gean; override com LAB_DIR para build em chroot/CI/outra máquina.
+_lab=${LAB_DIR:-/home/gean/Documents/nouveau-lab}
 _loader_sha=a209bded1de8aec02548dd75daa37de6257521b0fb1c57c49c737b13f44a70d9
 
 package() {
@@ -36,13 +42,27 @@ package() {
   install -m644 "$startdir/dkms.conf" "$dest/dkms.conf"
   install -m644 "$startdir/Makefile" "$dest/Makefile"
 
+  # sec2-bl: instala no caminho que o driver requisita
+  # (nvidia/ga107/gsp/sec2-bl-615.78.08.bin). No Arch o ga107/gsp é um
+  # symlink do linux-firmware-nvidia para ../ga102/gsp, então o arquivo
+  # cai fisicamente em ga102/gsp — mas o pacote não depende desse symlink:
+  # sem ele, o diretório real ga107/gsp é criado pelo pacote. O sec2-bl
+  # Ada (nvidia/ad102/gsp/sec2-bl-615.78.08.bin) NÃO existe ainda
+  # (PENDENTE DE EVIDÊNCIA, item 2 da onda 1) e não é instalado.
   install -Dm644 "$loader" \
-      "$pkgdir/usr/lib/firmware/nvidia/ga102/gsp/sec2-bl-615.78.08.bin"
+      "$pkgdir/usr/lib/firmware/nvidia/ga107/gsp/sec2-bl-615.78.08.bin"
 
-  if [ -d "/usr/lib/firmware/gpu-unlock/610.43.03" ]; then
-    install -d "$pkgdir/usr/lib/firmware/gpu-unlock/610.43.03"
-    cp -a /usr/lib/firmware/gpu-unlock/610.43.03/* "$pkgdir/usr/lib/firmware/gpu-unlock/610.43.03/"
-  fi
+  # Firmware gpu-unlock (610.43.03): fonte versionada no lab, verificada
+  # arquivo a arquivo. O build FALHA se o diretório ou qualquer blob
+  # estiver ausente ou com hash divergente — nunca copiar do
+  # /usr/lib/firmware do host (um build limpo geraria um pacote sem
+  # firmware e o driver cairia no fallback suave sem ninguém notar).
+  local unlock_src="$_lab/reference/nvidia/gpu-unlock-610.43.03"
+  [ -d "$unlock_src" ] || { echo "missing $unlock_src" >&2; return 1; }
+  (cd "$unlock_src" && sha256sum -c SHA256SUMS) || return 1
+  install -d "$pkgdir/usr/lib/firmware/gpu-unlock/610.43.03"
+  cp -a "$unlock_src"/*.bin "$pkgdir/usr/lib/firmware/gpu-unlock/610.43.03/"
+
   install -Dm755 "$startdir/nvgd-status" "$pkgdir/usr/bin/nvgd-status"
   install -Dm644 "$startdir/mkinitcpio-nvgd.conf" \
       "$pkgdir/etc/mkinitcpio.conf.d/90-nvgd.conf"
