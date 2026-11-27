@@ -69,7 +69,6 @@
   "screen_recorder": {
     "packages_match_primary_pc": true,
     "package_integrity_modified_files": 0,
-    "ui_rpc_running": true,
     "hotkeys_helper_running": true,
     "gnome_helper_running": true,
     "autostart_configured": true,
@@ -82,7 +81,10 @@
     "credentials_or_portal_tokens_copied": false,
     "gnome_extension_files_verified": true,
     "gnome_extension_active": "pending fresh GNOME login",
-    "portal_recording": "pending interactive portal selection"
+    "portal_recording": "Not validated; further recording tests explicitly deferred by the user. Initial portal attempt produced no recording file and is ended.",
+    "ui_rpc_responded_during_setup": true,
+    "user_confirmed_ui_appeared": true,
+    "ui_last_observed_running": false
   },
   "encode_quality_psnr_average_db": {
     "h264_constrained_baseline": 50.485131,
