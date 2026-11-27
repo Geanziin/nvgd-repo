@@ -58,11 +58,37 @@
     "av1-grain.txt": "d684d1ff13de3090ef3d50d8ffa842eb22ee683deffdbdeeeed381c7f3cd7534",
     "installed-validation.txt": "f376466f544d8c6e84c724eaf4099ec72e4a3b19e6df439bb339c1ed6093edb0",
     "kernel-build.log": "2e188983252036bd228199233507a654c5fb3b918d8e12a05d26c7b985b7a9c0",
-    "ga107-final.txt": "8a85fe366aa9ff2a8143f12c8be59242d8b7f5271ce3700f3274faa143ef347b"
+    "ga107-final.txt": "8a85fe366aa9ff2a8143f12c8be59242d8b7f5271ce3700f3274faa143ef347b",
+    "encode-quality.txt": "af5c3bd30bf88722edf35e09f6b1de3df95a3f35afe512d6ffc12fc44e02a8e3"
   },
   "residual_unknown": [
     "Visual confirmation in a fresh GNOME login session",
     "Other Ada chips and broader stream/application coverage",
     "Suspend/resume and tensor throughput benchmark"
-  ]
+  ],
+  "screen_recorder": {
+    "packages_match_primary_pc": true,
+    "package_integrity_modified_files": 0,
+    "ui_rpc_running": true,
+    "hotkeys_helper_running": true,
+    "gnome_helper_running": true,
+    "autostart_configured": true,
+    "settings_copied": [
+      "main",
+      "record",
+      "replay",
+      "screenshot"
+    ],
+    "credentials_or_portal_tokens_copied": false,
+    "gnome_extension_files_verified": true,
+    "gnome_extension_active": "pending fresh GNOME login",
+    "portal_recording": "pending interactive portal selection"
+  },
+  "encode_quality_psnr_average_db": {
+    "h264_constrained_baseline": 50.485131,
+    "h264_main": 40.128888,
+    "h264_high": 50.499088,
+    "hevc_main": 49.093654,
+    "hevc_main10": 48.814921
+  }
 }
