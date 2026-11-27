@@ -4,7 +4,7 @@
 # NVIDIA-DERIVED: private local use only, not for redistribution/upstream.
 pkgname=nvgd-dkms
 pkgver=1.0.0
-pkgrel=23
+pkgrel=24
 pkgdesc="nvgd: Next-Gen NVIDIA Driver with GSP P0 Boost for Turing+ GPUs (GTX 16xx, RTX 20/30/40) (DKMS)"
 arch=('x86_64')
 url="https://github.com/Geanziin/nvgd-dkms"
@@ -42,15 +42,11 @@ package() {
   install -m644 "$startdir/dkms.conf" "$dest/dkms.conf"
   install -m644 "$startdir/Makefile" "$dest/Makefile"
 
-  # sec2-bl: instala no caminho que o driver requisita
-  # (nvidia/ga107/gsp/sec2-bl-615.78.08.bin). No Arch o ga107/gsp é um
-  # symlink do linux-firmware-nvidia para ../ga102/gsp, então o arquivo
-  # cai fisicamente em ga102/gsp — mas o pacote não depende desse symlink:
-  # sem ele, o diretório real ga107/gsp é criado pelo pacote. O sec2-bl
-  # Ada (nvidia/ad102/gsp/sec2-bl-615.78.08.bin) NÃO existe ainda
-  # (PENDENTE DE EVIDÊNCIA, item 2 da onda 1) e não é instalado.
+  # linux-firmware-nvidia owns ga107/gsp -> ../ga102/gsp. Package only
+  # the canonical target, as in -21; never replace its symlink with a
+  # directory. The driver's ga107 request resolves through that symlink.
   install -Dm644 "$loader" \
-      "$pkgdir/usr/lib/firmware/nvidia/ga107/gsp/sec2-bl-615.78.08.bin"
+      "$pkgdir/usr/lib/firmware/nvidia/ga102/gsp/sec2-bl-615.78.08.bin"
 
   # Firmware gpu-unlock (610.43.03): fonte versionada no lab, verificada
   # arquivo a arquivo. O build FALHA se o diretório ou qualquer blob

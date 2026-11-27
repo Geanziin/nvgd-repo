@@ -57,9 +57,11 @@ if len(blobs) != 9:
     raise SystemExit(f'nvgd-dkms {nvgd[0]} has {len(blobs)}/9 gpu-unlock blobs; refusing to publish')
 if not any(n.startswith('usr/src/nvgd-1.0.0/tensor_unlock/') for n in names):
     raise SystemExit(f'nvgd-dkms {nvgd[0]} has no tensor_unlock/ in usr/src; refusing to publish')
-if not any(n == 'usr/lib/firmware/nvidia/ga107/gsp/sec2-bl-615.78.08.bin' for n in names):
-    raise SystemExit(f'nvgd-dkms {nvgd[0]} has no sec2-bl at ga107/gsp; refusing to publish')
-print(f'nvgd-dkms content OK: 9/9 gpu-unlock blobs, tensor_unlock/ in usr/src, sec2-bl at ga107/gsp')
+if 'usr/lib/firmware/nvidia/ga102/gsp/sec2-bl-615.78.08.bin' not in names:
+    raise SystemExit(f'nvgd-dkms {nvgd[0]} has no canonical sec2-bl at ga102/gsp; refusing to publish')
+if any(n.rstrip('/') == 'usr/lib/firmware/nvidia/ga107/gsp' or n.startswith('usr/lib/firmware/nvidia/ga107/gsp/') for n in names):
+    raise SystemExit('nvgd-dkms must not claim the linux-firmware-nvidia ga107/gsp symlink or children')
+print(f'nvgd-dkms content OK: 9/9 gpu-unlock blobs, tensor_unlock/ in usr/src, sec2-bl at canonical ga102/gsp')
 pathlib.Path(os.environ['SELECTED_FILE']).write_text('\n'.join(selected) + '\n')
 # repo-add replaces entries by package name. Include exactly one version of
 # every supported package, including lib32, instead of adding all archives.
