@@ -43,9 +43,13 @@ não uma atualização parcial com `pacman -Sy` seguida de instalação isolada.
 | `gpu-screen-recorder-notification-git` | Notificações de gravação e replay |
 
 Mesa 32/64-bit: `1:27.0.0_devel.r231969.g3e604079149-10`.
-DKMS: `1.0.0-23`. O build 32-bit otimiza C/C++ e Rust em nível 3,
+DKMS: `1.0.0-24`. O build 32-bit otimiza C/C++ e Rust em nível 3,
 incluindo NVK, NIR e NAK. Isso corrige overhead de CPU do build anterior;
 não representa garantia de FPS para um jogo específico.
+
+O DKMS -24 corrige o conflito de atualização com `linux-firmware-nvidia`: instala
+o SEC2 em `ga102/gsp`, preservando o link `ga107/gsp` pertencente à distribuição.
+O código do módulo e os blobs permanecem iguais aos do -23.
 
 ### Validação AD104 em 2026-11-27
 
