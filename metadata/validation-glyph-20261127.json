@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-27",
+  "followup_to": "validation-20261127.json",
+  "mesa_commit": "dfab0c2e1ece00b8730fb8ad7883b7fd31e114cb",
+  "build_source": "15b7230d890 + exact nvc0_surface.c rendering change committed as dfab0c2e1ec; documentation committed after packaging",
+  "nvc0_surface_sha256": "18b1b301f080355549b28b59a6ad6a421e1bb557b022e02ad8297f73c126544a",
+  "kernel_commit": "82350688e",
+  "kernel_package_unchanged": "1.0.0-23",
+  "packages": {
+    "mesa-git": {
+      "filename": "mesa-git-1.27.0.0_devel.r231969.g3e604079149-10-x86_64.pkg.tar.zst",
+      "size": 67196487,
+      "sha256": "b308aa6e9f1799a8e65b548367b7c644a0dbf901fe4e24f41f701c3121e65c95"
+    },
+    "lib32-mesa-git": {
+      "filename": "lib32-mesa-git-1.27.0.0_devel.r231969.g3e604079149-10-x86_64.pkg.tar.zst",
+      "size": 23842598,
+      "sha256": "eafb7603f9353300da629aa6700915db505b59bed86ad8eaf3c3670cc8681a39"
+    }
+  },
+  "observations": {
+    "fresh_login_with_minus9": "Corrupt GNOME glyphs reproduced. Earlier small GL suite did not establish complete GNOME correctness.",
+    "same_AD104_with_original_GA107_minus1_library": "Correct search text",
+    "debug_baseline": "Corrupt full app grid",
+    "debug_candidate": "Correct full app grid",
+    "final_optimized_minus10_package": "Correct full app grid; screenshot visually reviewed",
+    "compression_enabled_with_minus9": "Still corrupt"
+  },
+  "checks": {
+    "device": "AD104 10de:2788",
+    "render_cases": 35,
+    "failed_render_cases": 0,
+    "concurrency_compute_buffer": "PASS",
+    "surface_clear_bits": [
+      32,
+      64
+    ],
+    "surface_clear_bad_components": 0,
+    "installed_package_library_bytes_match_tested_libraries": true,
+    "snapshots": [
+      118,
+      119
+    ],
+    "unlock_preserved": true,
+    "new_kernel_graphics_events_during_final_checks": 0,
+    "GA107_isolated_candidate_render_cases": 35,
+    "GA107_isolated_candidate_failures": 0,
+    "GA107_system_not_upgraded": true,
+    "codecs_changed_in_followup": false,
+    "recording_tests": "Explicitly deferred to user"
+  },
+  "captures": {
+    "final_optimized_app_grid_sha256": "916df8103f6205126b18f37df4e22754f3b3d9a809c2e1acde7aa347c1ad2898"
+  },
+  "logs": {
+    "regression-final-package.log": "e1f515ff70ccd38368c5d78a88b08831281ac927cb8d17210174ca25145db530",
+    "installed-final.log": "3a31da2c42b87cf9c78b5109961e83615c4756f39f7d9195edf6f629d4041534",
+    "regression-ga107-final.log": "8cff3a3f31d79394b7d65818989f180946a7cf9023a981ccfa887aa94517bf92"
+  },
+  "residual_unknown": [
+    "Lower-level cause of forced 3D composition corruption, beyond the demonstrated copy/clip path regression",
+    "Active desktop must load -10 during next user login; no automatic logout performed",
+    "Other Ada GPUs and broader scenes remain untested"
+  ]
+}

@@ -4,7 +4,7 @@
 pkgname=lib32-mesa-git
 epoch=1
 pkgver=27.0.0_devel.r231969.g3e604079149
-pkgrel=9
+pkgrel=10
 pkgdesc="Mesa 32-bit (nvgd direct OpenGL driver and NVK) - private local use"
 arch=('x86_64')
 url="https://github.com/Geanziin/nvgd"

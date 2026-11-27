@@ -42,12 +42,18 @@ não uma atualização parcial com `pacman -Sy` seguida de instalação isolada.
 | `gpu-screen-recorder-ui-git` | Interface gráfica |
 | `gpu-screen-recorder-notification-git` | Notificações de gravação e replay |
 
-Mesa 32/64-bit: `1:27.0.0_devel.r231969.g3e604079149-9`.
+Mesa 32/64-bit: `1:27.0.0_devel.r231969.g3e604079149-10`.
 DKMS: `1.0.0-23`. O build 32-bit otimiza C/C++ e Rust em nível 3,
 incluindo NVK, NIR e NAK. Isso corrige overhead de CPU do build anterior;
 não representa garantia de FPS para um jogo específico.
 
 ### Validação AD104 em 2026-11-27
+
+O Mesa -10 também restaura as cópias e o recorte 2D nativos da versão -1
+funcional na 3050. Isso corrige os glifos desconexos/preto-branco reproduzidos
+no GNOME completo da AD104 com -9; o teste A/B inclui a mesma cena com a
+biblioteca antiga e com o novo código. Os codecs e o módulo -23 são preservados.
+Relatório: [`nvgd-glyph-render-20261127.md`](https://github.com/Geanziin/nvgd/blob/main/docs/nvgd-glyph-render-20261127.md).
 
 Na RTX 4060 Ti `10de:2788`, o Mesa -9 corrige clear de superfícies e a
 submissão com múltiplos contextos: 35/35 casos de imagem e 10/10 rodadas de cada
