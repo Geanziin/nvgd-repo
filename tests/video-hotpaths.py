@@ -36,7 +36,7 @@ code = r'''
 enum { SLOT_INPUT_Y, SLOT_INPUT_UV };
 struct buffer { void *map; };
 struct slot { struct buffer buffers[2]; };
-struct nvenc_backend { unsigned coded_height, height, pitch, width; };
+struct nvenc_backend { unsigned coded_height, height, pitch, width, sample_bytes; };
 #define NOUVEAU_NVDEC_MAX_BITSTREAM (16u * 1024u * 1024u)
 #define MAX2(a,b) ((a) > (b) ? (a) : (b))
 #define MIN2(a,b) ((a) < (b) ? (a) : (b))
@@ -67,7 +67,7 @@ int main(void) {
     unsigned cases=0;
     for(unsigned wi=0;wi<sizeof(widths)/sizeof(widths[0]);wi++)
     for(unsigned hi=0;hi<sizeof(heights)/sizeof(heights[0]);hi++) {
-        struct nvenc_backend s={.width=widths[wi],.height=heights[hi],.pitch=(widths[wi]+127)&~127u,.coded_height=(heights[hi]+15)&~15u};
+        struct nvenc_backend s={.width=widths[wi],.height=heights[hi],.pitch=(widths[wi]+127)&~127u,.coded_height=(heights[hi]+15)&~15u,.sample_bytes=1};
         size_t bytes=(size_t)s.pitch*s.coded_height;
         unsigned input_pitch=s.width+22;
         uint8_t *input=malloc((size_t)input_pitch*s.height);

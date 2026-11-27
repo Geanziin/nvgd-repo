@@ -3,7 +3,12 @@ set -euo pipefail
 
 REPO_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 LAB_DIR="${LAB_DIR:-/home/gean/Documents/nouveau-lab}"
+if [[ "${1:-}" == --publish ]] && ! git -C "$REPO_DIR" diff --cached --quiet; then
+    echo 'Refusing to publish with pre-existing staged changes.' >&2
+    exit 1
+fi
 SELECTED_FILE="$(mktemp)"
+trap 'rm -f "$SELECTED_FILE"' EXIT
 export REPO_DIR LAB_DIR SELECTED_FILE
 
 # Read package metadata: glob ordering is not Arch version ordering.
@@ -63,25 +68,26 @@ PY
 
 if [[ "${1:-}" == --publish ]]; then
     mapfile -t selected_pkgs < "$SELECTED_FILE"
-    # Publish to the release ONLY the packages in the DB (never
-    # x86_64/*.pkg.tar.zst — the directory holds old builds the DB
-    # does not contain), and commit only the maintained files (never
-    # the whole x86_64/, which holds legacy DBs this script does not
-    # regenerate, e.g. nouveau-lab.db and nvgd-dkms.db).
-    git -C "$REPO_DIR" add -- .gitignore "${selected_pkgs[@]}" \
-        x86_64/nvgd.db x86_64/nvgd.files x86_64/nvgd.db.tar.gz x86_64/nvgd.files.tar.gz \
-        README.md install.sh update-repo.sh packaging tests metadata profiles media-libs media-video x11-drivers
-    if ! git -C "$REPO_DIR" diff --cached --quiet; then
-        git -C "$REPO_DIR" commit -m "Update nvgd repository packages $(date +'%Y-%m-%d')"
-    fi
-    git -C "$REPO_DIR" push origin main
+    # Publish every referenced package before replacing the public database.
+    # Do not add binary archives to Git; pacman downloads them from Releases.
     if ! gh release view packages --repo Geanziin/nvgd-repo >/dev/null 2>&1; then
         gh release create packages --repo Geanziin/nvgd-repo --title "nvgd packages" --notes "Arch/CachyOS binary repository."
     fi
     gh release upload packages "${selected_pkgs[@]}" \
+        --repo Geanziin/nvgd-repo --clobber
+    gh release upload packages \
         "$REPO_DIR"/x86_64/nvgd.db "$REPO_DIR"/x86_64/nvgd.files \
         "$REPO_DIR"/x86_64/nvgd.db.tar.gz "$REPO_DIR"/x86_64/nvgd.files.tar.gz \
         --repo Geanziin/nvgd-repo --clobber
+    git -C "$REPO_DIR" add -- .gitignore \
+        x86_64/nvgd.db x86_64/nvgd.files x86_64/nvgd.db.tar.gz x86_64/nvgd.files.tar.gz \
+        README.md install.sh update-repo.sh tests metadata
+    git -C "$REPO_DIR" add -u -- packaging profiles media-libs media-video x11-drivers
+    if ! git -C "$REPO_DIR" diff --cached --quiet; then
+        git -C "$REPO_DIR" commit -m "[nvgd] update validated packages and Releases repository" -m "Generated-by: LLM"
+    fi
+    git -C "$REPO_DIR" pull --rebase origin main
+    git -C "$REPO_DIR" push origin main
 fi
 
 rm -f "$SELECTED_FILE"

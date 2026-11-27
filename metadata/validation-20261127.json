@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-27",
+  "device": {
+    "pci_id": "10de:2788",
+    "chipset": "AD104",
+    "kernel": "7.3.6-1-cachyos"
+  },
+  "mesa_code_commit": "d09876b7137",
+  "kernel_commit": "82350688e",
+  "package_build_base": "49252e8a540 + reviewed committed changes",
+  "packages": {
+    "mesa-git-lab": {
+      "filename": "mesa-git-1.27.0.0_devel.r231969.g3e604079149-9-x86_64.pkg.tar.zst",
+      "size": 67193002,
+      "sha256": "1ca071ee26112ff08a8ee9f76e2d0724230bdc5aefc386b71af86474ca942633"
+    },
+    "lib32-mesa-git": {
+      "filename": "lib32-mesa-git-1.27.0.0_devel.r231969.g3e604079149-9-x86_64.pkg.tar.zst",
+      "size": 23844319,
+      "sha256": "6516a26ae253131ddd2e34fb1f8678e6604148db70177e51f555c297ee6736ec"
+    },
+    "nvgd-dkms": {
+      "filename": "nvgd-dkms-1.0.0-23-x86_64.pkg.tar.zst",
+      "size": 73102027,
+      "sha256": "ddb3cd08e52d33b5bb7cbe8dd02c8c40b5d4e9cdb020458fcf985fcdd5bda28a"
+    }
+  },
+  "installed_checks": {
+    "render_cases": 35,
+    "render_failed_cases": 0,
+    "surface_clear_bits": [
+      32,
+      64
+    ],
+    "surface_clear_bad_components": 0,
+    "decode_cases": 9,
+    "decode_frames": 390,
+    "decode_hash_mismatches": 0,
+    "encode_profiles": 5,
+    "encode_strict_decode_failures": 0,
+    "concurrency_candidate_runs_per_test": 10,
+    "concurrency_installed_runs_per_test": 5,
+    "new_kernel_graphics_events": 0,
+    "unlock_preserved": true,
+    "snapshots": [
+      116,
+      117
+    ]
+  },
+  "logs": {
+    "baseline.txt": "a1909df18438daa772fb9f37b10d7b6e0512cef4ad5514495c641131563ac38d",
+    "render-baseline.txt": "f2390c72f89a9ea6a31b3bf4805e9a4481e3628ab509cc078d0c5e2a47ec399d",
+    "surface-clear-ab.txt": "40b4230b5ba9b7c1d43c6d39a11979dc6c4dc43dfa856db5c34db92322ab6e8b",
+    "thread-deferral-ab.txt": "3ba5b6a55f22a81dd965775043f7876373ea488d4e19f9cb526f9a5b5ce3c1e8",
+    "thread-fix-validation.txt": "92078d58c167290df758ddfbfa76c86091b7fade9621323c0556ca34d948d733",
+    "decode-matrix.txt": "6a8d9da8aad7f192a1f3ae5f8a6f2d4843ed7082765910f3a843e83495116976",
+    "decode-av1-10.txt": "b392783f2b75f61a41c831aa878574f3b4e9243ebb0fc52a3a27021369e5adeb",
+    "av1-grain.txt": "d684d1ff13de3090ef3d50d8ffa842eb22ee683deffdbdeeeed381c7f3cd7534",
+    "installed-validation.txt": "f376466f544d8c6e84c724eaf4099ec72e4a3b19e6df439bb339c1ed6093edb0",
+    "kernel-build.log": "2e188983252036bd228199233507a654c5fb3b918d8e12a05d26c7b985b7a9c0",
+    "ga107-final.txt": "8a85fe366aa9ff2a8143f12c8be59242d8b7f5271ce3700f3274faa143ef347b"
+  },
+  "residual_unknown": [
+    "Visual confirmation in a fresh GNOME login session",
+    "Other Ada chips and broader stream/application coverage",
+    "Suspend/resume and tensor throughput benchmark"
+  ]
+}

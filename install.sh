@@ -11,7 +11,7 @@ python3 - <<'PY'
 import datetime, pathlib, re, shutil
 path = pathlib.Path('/etc/pacman.conf')
 original = path.read_text()
-sections = re.split(r'(?m)(?=^\s*\[[^\]\n]+\]\s*$)', original)
+sections = re.split(r'(?m)(?=^[ \t]*\[[^\]\n]+\][ \t]*$)', original)
 kept = []
 for section in sections:
     match = re.match(r'\s*\[([^\]]+)\]', section)
@@ -20,7 +20,7 @@ for section in sections:
     kept.append(section)
 block = ('[nvgd]\n'
          'SigLevel = Optional TrustAll\n'
-         'Server = https://geanziin.github.io/nvgd-repo/$arch\n'
+         'Server = https://github.com/Geanziin/nvgd-repo/releases/download/packages\n'
          '\n')
 # Put nvgd before every other repository, but after [options].
 index = next((i for i, section in enumerate(kept)
@@ -32,7 +32,7 @@ if updated != original:
     shutil.copy2(path, backup)
     path.write_text(updated)
     print('Backup:', backup)
-print('Repository configured: [nvgd] -> https://geanziin.github.io/nvgd-repo/$arch')
+print('Repository configured: [nvgd] -> GitHub Releases / packages')
 PY
 
     if [[ "${1:-}" == --configure-only ]]; then

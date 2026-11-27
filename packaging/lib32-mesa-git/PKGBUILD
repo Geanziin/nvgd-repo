@@ -4,7 +4,7 @@
 pkgname=lib32-mesa-git
 epoch=1
 pkgver=27.0.0_devel.r231969.g3e604079149
-pkgrel=1
+pkgrel=9
 pkgdesc="Mesa 32-bit (nvgd direct OpenGL driver and NVK) - private local use"
 arch=('x86_64')
 url="https://github.com/Geanziin/nvgd"
@@ -12,7 +12,7 @@ license=('custom')
 depends=('mesa' 'lib32-libdrm' 'lib32-wayland' 'lib32-libxxf86vm' 'lib32-libxdamage'
          'lib32-libxshmfence' 'lib32-libelf' 'lib32-expat' 'lib32-libx11'
          'lib32-libxext' 'lib32-libxfixes' 'lib32-libxrandr' 'lib32-libxcb'
-         'lib32-zlib' 'lib32-zstd' 'lib32-libdisplay-info' 'lib32-spirv-tools'
+         'lib32-zlib' 'lib32-zstd' 'lib32-libdisplay-info' 'lib32-spirv-tools' 'lib32-xcb-util-keysyms'
          'lib32-vulkan-icd-loader' 'lib32-systemd' 'lib32-gcc-libs' 'lib32-glibc')
 makedepends=('meson' 'ninja' 'gcc' 'pkgconf' 'rust' 'rust-bindgen' 'cbindgen'
              'python-mako' 'python-yaml' 'glslang' 'wayland-protocols'

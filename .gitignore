@@ -1,2 +1,9 @@
 x86_64/nvgd.db.tar.gz.old
 x86_64/nvgd.files.tar.gz.old
+
+# Binaries are distributed through the packages release; keep existing history.
+x86_64/*.pkg.tar.zst
+packaging/*/*.pkg.tar.zst
+packaging/*/src/
+packaging/*/pkg/
+packaging/*/*.log

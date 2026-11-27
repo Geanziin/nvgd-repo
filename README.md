@@ -12,10 +12,14 @@ Coloque este bloco **antes dos outros repositórios** em `/etc/pacman.conf`:
 ```ini
 [nvgd]
 SigLevel = Optional TrustAll
-Server = https://geanziin.github.io/nvgd-repo/$arch
+Server = https://github.com/Geanziin/nvgd-repo/releases/download/packages
 ```
 
 Remova blocos antigos `[nouveau-lab]` e `[nvgd-dkms]`. Para migrar automaticamente:
+
+Usuários do servidor GitHub Pages anterior também devem executar o instalador
+abaixo para migrar a URL. Os novos binários ficam no release `packages`;
+o histórico Git existente foi preservado.
 
 ```bash
 curl -fLO https://raw.githubusercontent.com/Geanziin/nvgd-repo/main/install.sh
@@ -38,10 +42,24 @@ não uma atualização parcial com `pacman -Sy` seguida de instalação isolada.
 | `gpu-screen-recorder-ui-git` | Interface gráfica |
 | `gpu-screen-recorder-notification-git` | Notificações de gravação e replay |
 
-Mesa 32/64-bit: `1:27.0.0_devel.r231969.g3e604079149-1`.
-DKMS: `1.0.0-21`. O build 32-bit otimiza C/C++ e Rust em nível 3,
+Mesa 32/64-bit: `1:27.0.0_devel.r231969.g3e604079149-9`.
+DKMS: `1.0.0-23`. O build 32-bit otimiza C/C++ e Rust em nível 3,
 incluindo NVK, NIR e NAK. Isso corrige overhead de CPU do build anterior;
 não representa garantia de FPS para um jogo específico.
+
+### Validação AD104 em 2026-11-27
+
+Na RTX 4060 Ti `10de:2788`, o Mesa -9 corrige clear de superfícies e a
+submissão com múltiplos contextos: 35/35 casos de imagem e 10/10 rodadas de cada
+teste concorrente passaram. NVDEC H.264, HEVC, VP9 e AV1, incluindo 10-bit e
+AV1 film grain, produziu quadros idênticos à referência nos casos testados.
+NVENC H.264 Baseline/Main/High e HEVC Main/Main10 passaram em encode/decode
+estrito. Outras Ada continuam sem validação em hardware nesta rodada.
+O relatório e os reproducers estão no fork
+[`docs/nvgd-ada-20261127.md`](https://github.com/Geanziin/nvgd/blob/main/docs/nvgd-ada-20261127.md).
+O nvgd-dkms -23 mantém os nove blobs do unlock e disponibiliza contadores de
+vídeo também nos backends RM r535/r570. Reinicie a sessão gráfica após atualizar
+Mesa; o compositor aberto mantém a biblioteca anterior carregada.
 
 **Resultados de Performance e Desbloqueio de Hardware (RTX 3050 6GB GA107)**:
 - **Tensor Core Speed-Select (2× Throughput de FP32 Accumulate)**:
@@ -149,7 +167,9 @@ GPU NVIDIA com NVK. Se houver apenas simpledrm/llvmpipe, envie o log do boot
 
 `./update-repo.sh` seleciona por metadados/vercmp a versão mais recente dos seis
 pacotes em `$LAB_DIR/packaging` ou `x86_64` e gera `nvgd.db.tar.gz`.
-`./update-repo.sh --publish` também faz commit/push e atualiza o release
+`./update-repo.sh --publish` envia primeiro os binários e depois os bancos ao
+release, faz commit dos metadados/receitas e `pull --rebase`/push. Os arquivos
+`.pkg.tar.zst` novos não entram no Git. O release é
 [`packages`](https://github.com/Geanziin/nvgd-repo/releases/tag/packages).
 As receitas locais estão em `packaging/`; ainda dependem da árvore de build do lab.
 

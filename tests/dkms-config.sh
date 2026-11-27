@@ -24,7 +24,12 @@ for KERNELVERSION in 7.2.11-1-cachyos 7.3.0-3-cachyos 8.0.0-test; do
         # shellcheck source=/dev/null
         source "$config_dir/mkinitcpio-nvgd.conf"
         if [[ "$module_exists" == yes ]]; then
-            [[ "${MODULES[*]}" == nvgd && "${#FILES[@]}" == 2 ]]
+            [[ "${MODULES[*]}" == nvgd && "${#FILES[@]}" == 15 ]]
+            unlock=0
+            for firmware in "${FILES[@]}"; do
+                [[ "$firmware" != /usr/lib/firmware/gpu-unlock/610.43.03/* ]] || ((unlock+=1))
+            done
+            [[ "$unlock" == 9 ]]
         else
             [[ "${#MODULES[@]}" == 0 && "${#FILES[@]}" == 0 ]]
         fi
